@@ -9,14 +9,19 @@ library(tidylog)
 library(here)
 library(sp)
 
-# READ DATA ----------------------------------------------------------------------------------------
-sa_schools <- readRDS("data_prep/sa_schools.RDS")
-
+# Reference: https://www.r-bloggers.com/osm-nominatim-with-r-getting-locations-geo-coordinates-by-its-address/
 
 # TODO
+# Look up GIS coordinates where have street address or name of school if NA/incorrect
 # Create spatial object
-
-# sa_gis <- sa_schools
 # coordinates(sa_gis) <- c("GIS_Longitude", "GIS_Latitude")
 
-# Look up GIS coordinates where have street address
+# READ DATA ----------------------------------------------------------------------------------------
+sa_schools <- readRDS("data_prep/01_sa_schools.RDS")
+
+# MISSING GIS --------------------------------------------------------------------------------------
+gis_na <- subset(sa_schools, is.na(GIS_Longitude) | is.na(GIS_Latitude))
+# Note: There are 610 schools without GIS coordinates. Some of these have street addresses.
+
+
+

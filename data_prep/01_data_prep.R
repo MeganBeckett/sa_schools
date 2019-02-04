@@ -96,4 +96,4 @@ sa_schools <- sa_schools %>%
 
 
 # SAVE RDS file
-saveRDS(sa_schools, "sa_schools.RDS")
+saveRDS(sa_schools, "data_prep/01_sa_schools.RDS")
