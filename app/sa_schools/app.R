@@ -1,3 +1,7 @@
+# References
+# Nav bar: https://shiny.rstudio.com/reference/shiny/1.0.1/navbarPage.html
+# Absolute panels: https://shiny.rstudio.com/gallery/absolutely-positioned-panels.html
+
 # LIBRARIES ----------------------------------------------------------------------------------------
 library(shiny)
 library(leaflet)
@@ -12,11 +16,26 @@ sa_schools <- sa_schools %>%
   top_n(20)
 
 # UI -----------------------------------------------------------------------------------------------
-ui <- fluidPage(
-    # Create base map
-    leafletOutput("map", height = "1000")
-)
+# ui <- fluidPage(
+#     # Create base map
+#     leafletOutput("map", height = "1000")
+# )
 
+ui <- navbarPage(title = "South African Schools", id = "nav",
+                 collapsible = TRUE,
+
+                 tabPanel("Interactive map",
+
+                          # Create base map
+                          leafletOutput("map", height = "1000")
+                          ),
+
+                 tabPanel("Explore data"
+
+                          )
+
+
+)
 
 # SERVER -------------------------------------------------------------------------------------------
 # Define server logic
