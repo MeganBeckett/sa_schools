@@ -15,6 +15,23 @@ sa_schools <- sa_schools %>%
   group_by(Province) %>%
   top_n(100)
 
+# VARIABLES FOR INPUT PANEL --------------------------------------------------------------------------
+# Variables to set size by
+size_vars <- c(
+  "Learner number" = "Learners",
+  "Educator number" = "Educators",
+  "Standard size" = 100
+)
+
+# Variables to colour by
+color_vars <- c(
+  "Sector" = "Sector",
+  "Phase" = "Phase",
+  "Quintile" = "Quintile",
+  "Urban or rural" = "Urban_Rural"
+)
+
+
 # UI -----------------------------------------------------------------------------------------------
 # ui <- fluidPage(
 #     # Create base map
@@ -26,8 +43,29 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
 
                  tabPanel("Interactive map",
 
+                          tags$head(
+                            tags$style(HTML("
+                              #controls {
+                                background-color: white;
+                                padding: 0 20px 20px 20px;
+                                opacity: 0.5};")
+                            )),
+
                           # Create base map
-                          leafletOutput("map", height = "1000")
+                          leafletOutput("map", height = "1000"),
+
+                          # Input panel
+                          absolutePanel(id = "controls", fixed = TRUE,
+                                        draggable = TRUE, top = 100, left = "auto", right = 40, bottom = "auto",
+                                        width = 230, height = "auto",
+                                        style = "opacity: 0.8",
+
+                                        h3("School explorer"),
+
+                                        radioButtons("size", "Size", size_vars, selected = "Learners"),
+                                        selectInput("color", "Color", color_vars, selected = "Sector")
+                                        )
+
                           ),
 
                  tabPanel("Explore data",
@@ -51,6 +89,7 @@ server <- function(input, output) {
 
     m <- leaflet(data = sa_schools) %>%
       addTiles() %>%
+      # fitBounds(~min(longitude), ~min(latitude), ~max(longitude), ~max(latitude)) %>%
       setView(lng = 24, lat = -30, zoom = 6) %>%
       # addMarkers(lng = ~longitude,
       #            lat = ~latitude,
@@ -60,15 +99,15 @@ server <- function(input, output) {
       #                          "Quintile:", sa_schools$Quintile, "<br>",
       #                          "# learners:", sa_schools$Learners, "<br>",
       #                          "# educators:", sa_schools$Educators))
-    addCircles(lng = ~longitude,
-               lat = ~latitude,
-               radius = ~Learners,
-               popup = paste(sa_schools$Name, "<br>",
-                             "Phase:", sa_schools$Phase, "<br>",
-                             "Sector:", sa_schools$Sector, "<br>",
-                             "Quintile:", sa_schools$Quintile, "<br>",
-                             "# learners:", sa_schools$Learners, "<br>",
-                             "# educators:", sa_schools$Educators), weight = 1)
+      addCircles(lng = ~longitude,
+                 lat = ~latitude,
+                 radius = ~Learners/2,
+                 popup = paste(sa_schools$Name, "<br>",
+                               "Phase:", sa_schools$Phase, "<br>",
+                               "Sector:", sa_schools$Sector, "<br>",
+                               "Quintile:", sa_schools$Quintile, "<br>",
+                               "# learners:", sa_schools$Learners, "<br>",
+                               "# educators:", sa_schools$Educators), weight = 1)
 
     m
   })
