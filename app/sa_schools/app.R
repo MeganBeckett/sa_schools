@@ -9,7 +9,7 @@ library(dplyr)
 library(here)
 
 # READ IN DATA -------------------------------------------------------------------------------------
-sa_schools <- readRDS(here::here("data_prep/02_sa_schools.RDS"))
+sa_schools <- readRDS(here::here("data_prep/03_sa_schools.RDS"))
 # Subset for now
 sa_schools <- sa_schools %>%
   group_by(Province) %>%
@@ -30,8 +30,9 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
                           leafletOutput("map", height = "1000")
                           ),
 
-                 tabPanel("Explore data"
+                 tabPanel("Explore data",
 
+                          DT::dataTableOutput("table")
                           )
 
 
@@ -52,14 +53,21 @@ server <- function(input, output) {
       addTiles() %>%
       addMarkers(lng = ~longitude,
                  lat = ~latitude,
-                 popup = paste(sa_schools$Institution_Name, "<br>",
+                 popup = paste(sa_schools$Name, "<br>",
                                "Phase:", sa_schools$Phase, "<br>",
                                "Sector:", sa_schools$Sector, "<br>",
                                "Quintile:", sa_schools$Quintile, "<br>",
-                               "# learners:", sa_schools$Learner_number_2017, "<br>",
-                               "# educators:", sa_schools$Educator_number_2017)) %>%
+                               "# learners:", sa_schools$Learners, "<br>",
+                               "# educators:", sa_schools$Educators)) %>%
       setView(lng = 24, lat = -30, zoom = 6)
     m
+  })
+
+  output$table <- DT::renderDataTable({
+    sa_schools_slim <- sa_schools %>%
+      select(-latitude, -longitude)
+
+    DT::datatable(sa_schools_slim)
   })
 }
 
