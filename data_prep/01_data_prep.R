@@ -43,7 +43,7 @@ sa_schools <- sa_schools %>%
 sa_schools <- sa_schools %>%
   mutate(NatEmis = as.numeric(NatEmis),
          Quintile = as.numeric(Quintile),
-         Educators_number_2017 = as.numeric(`Educator_Number 2017`),
+         Educator_number_2017 = as.numeric(`Educator_Number 2017`),
          Learner_number_2017 = as.numeric(`Learner_Number 2017`)
          )
 
@@ -95,5 +95,9 @@ sa_schools <- sa_schools %>%
          OwnerLand = as.factor(OwnerLand))
 
 
-# SAVE RDS file
+# REMOVE UNWANTED COLUMNS --------------------------------------------------------------------------
+sa_schools <- sa_schools %>%
+  select(-dmy, -mdy, -ymd, -`Learner_Number 2017`, -`Educator_Number 2017`)
+
+# SAVE ---------------------------------------------------------------------------------------------
 saveRDS(sa_schools, "data_prep/01_sa_schools.RDS")
