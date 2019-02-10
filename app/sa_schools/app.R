@@ -1,48 +1,47 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
+# LIBRARIES ----------------------------------------------------------------------------------------
 library(shiny)
+library(leaflet)
+library(dplyr)
+library(here)
 
-# Define UI for application that draws a histogram
+# READ IN DATA -------------------------------------------------------------------------------------
+sa_schools <- readRDS(here::here("data_prep/02_sa_schools.RDS"))
+# Subset for now
+sa_schools <- sa_schools %>%
+  group_by(Province) %>%
+  top_n(20)
+
+# UI -----------------------------------------------------------------------------------------------
 ui <- fluidPage(
-
-   # Application title
-   titlePanel("South African schools search"),
-
-   # Sidebar with a slider input for number of bins
-   sidebarLayout(
-      sidebarPanel(
-         sliderInput("bins",
-                     "Number of bins:",
-                     min = 1,
-                     max = 50,
-                     value = 30)
-      ),
-
-      # Show a plot of the generated distribution
-      mainPanel(
-         plotOutput("distPlot")
-      )
-   )
+    # Create base map
+    leafletOutput("map", height = "1000")
 )
 
-# Define server logic required to draw a histogram
+
+# SERVER -------------------------------------------------------------------------------------------
+# Define server logic
 server <- function(input, output) {
 
-   output$distPlot <- renderPlot({
-      # generate bins based on input$bins from ui.R
-      x    <- faithful[, 2]
-      bins <- seq(min(x), max(x), length.out = input$bins + 1)
+  data <- reactive({
+    x <- sa_schools
+  })
 
-      # draw the histogram with the specified number of bins
-      hist(x, breaks = bins, col = 'darkgray', border = 'white')
-   })
+  output$map <- renderLeaflet({
+    sa_schools <- data()
+
+    m <- leaflet(data = sa_schools) %>%
+      addTiles() %>%
+      addMarkers(lng = ~longitude,
+                 lat = ~latitude,
+                 popup = paste(sa_schools$Institution_Name, "<br>",
+                               "Phase:", sa_schools$Phase, "<br>",
+                               "Sector:", sa_schools$Sector, "<br>",
+                               "Quintile:", sa_schools$Quintile, "<br>",
+                               "# learners:", sa_schools$Learner_number_2017, "<br>",
+                               "# educators:", sa_schools$Educator_number_2017)) %>%
+      setView(lng = 24, lat = -30, zoom = 6)
+    m
+  })
 }
 
 # Run the application
