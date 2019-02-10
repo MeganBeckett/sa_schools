@@ -13,7 +13,7 @@ sa_schools <- readRDS(here::here("data_prep/03_sa_schools.RDS"))
 # Subset for now
 sa_schools <- sa_schools %>%
   group_by(Province) %>%
-  top_n(20)
+  top_n(100)
 
 # UI -----------------------------------------------------------------------------------------------
 # ui <- fluidPage(
@@ -51,15 +51,25 @@ server <- function(input, output) {
 
     m <- leaflet(data = sa_schools) %>%
       addTiles() %>%
-      addMarkers(lng = ~longitude,
-                 lat = ~latitude,
-                 popup = paste(sa_schools$Name, "<br>",
-                               "Phase:", sa_schools$Phase, "<br>",
-                               "Sector:", sa_schools$Sector, "<br>",
-                               "Quintile:", sa_schools$Quintile, "<br>",
-                               "# learners:", sa_schools$Learners, "<br>",
-                               "# educators:", sa_schools$Educators)) %>%
-      setView(lng = 24, lat = -30, zoom = 6)
+      setView(lng = 24, lat = -30, zoom = 6) %>%
+      # addMarkers(lng = ~longitude,
+      #            lat = ~latitude,
+      #            popup = paste(sa_schools$Name, "<br>",
+      #                          "Phase:", sa_schools$Phase, "<br>",
+      #                          "Sector:", sa_schools$Sector, "<br>",
+      #                          "Quintile:", sa_schools$Quintile, "<br>",
+      #                          "# learners:", sa_schools$Learners, "<br>",
+      #                          "# educators:", sa_schools$Educators))
+    addCircles(lng = ~longitude,
+               lat = ~latitude,
+               radius = ~Learners,
+               popup = paste(sa_schools$Name, "<br>",
+                             "Phase:", sa_schools$Phase, "<br>",
+                             "Sector:", sa_schools$Sector, "<br>",
+                             "Quintile:", sa_schools$Quintile, "<br>",
+                             "# learners:", sa_schools$Learners, "<br>",
+                             "# educators:", sa_schools$Educators), weight = 1)
+
     m
   })
 
