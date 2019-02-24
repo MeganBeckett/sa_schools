@@ -20,7 +20,7 @@ sa_schools <- sa_schools %>%
 size_vars <- c(
   "Learner number" = "Learners",
   "Educator number" = "Educators",
-  "Standard size" = 100
+  "Standard size" = 1000
 )
 
 # Variables to colour by
@@ -84,13 +84,14 @@ server <- function(input, output) {
     x <- sa_schools
   })
 
+  # INTERACTIVE MAP --------------------------------------------------------------------------------
   output$map <- renderLeaflet({
     sa_schools <- data()
 
     m <- leaflet(data = sa_schools) %>%
       addTiles() %>%
       # fitBounds(~min(longitude), ~min(latitude), ~max(longitude), ~max(latitude)) %>%
-      setView(lng = 24, lat = -30, zoom = 6) %>%
+      setView(lng = 24, lat = -30, zoom = 6)
       # addMarkers(lng = ~longitude,
       #            lat = ~latitude,
       #            popup = paste(sa_schools$Name, "<br>",
@@ -98,20 +99,44 @@ server <- function(input, output) {
       #                          "Sector:", sa_schools$Sector, "<br>",
       #                          "Quintile:", sa_schools$Quintile, "<br>",
       #                          "# learners:", sa_schools$Learners, "<br>",
-      #                          "# educators:", sa_schools$Educators))
-      addCircles(lng = ~longitude,
-                 lat = ~latitude,
-                 radius = ~Learners/2,
-                 popup = paste(sa_schools$Name, "<br>",
-                               "Phase:", sa_schools$Phase, "<br>",
-                               "Sector:", sa_schools$Sector, "<br>",
-                               "Quintile:", sa_schools$Quintile, "<br>",
-                               "# learners:", sa_schools$Learners, "<br>",
-                               "# educators:", sa_schools$Educators), weight = 1)
+      #                           "# educators:", sa_schools$Educators))
+      # addCircles(lng = ~longitude,
+      #            lat = ~latitude,
+      #            radius = ~Learners/2,
+      #            popup = paste(sa_schools$Name, "<br>",
+      #                          "Phase:", sa_schools$Phase, "<br>",
+      #                          "Sector:", sa_schools$Sector, "<br>",
+      #                          "Quintile:", sa_schools$Quintile, "<br>",
+      #                          "# learners:", sa_schools$Learners, "<br>",
+      #                          "# educators:", sa_schools$Educators), weight = 1)
 
     m
   })
 
+  # This observer is responsible for maintaining the circles and legend,
+  # according to the variables the user has chosen to map to color and size.
+  observe({
+    color_by <- input$color
+    size_by <- input$size
+
+    color_data <- sa_schools[[color_by]]
+    pal <- colorFactor("Set1", color_data)
+
+    if (size_by == "Educators") {
+      radius <- sa_schools[[size_by]] * 6
+    } else {
+      radius <- sa_schools[[size_by]] / 2
+    }
+
+   leafletProxy("map", data = sa_schools) %>%
+     clearShapes() %>%
+     addCircles(~longitude, ~latitude, radius=radius,
+                stroke=FALSE, fillOpacity=0.8, fillColor=pal(color_data)) %>%
+     addLegend("bottomleft", pal=pal, values=color_data, title=color_by,
+               layerId="color_legend")
+})
+
+  # DATA EXPLORER ----------------------------------------------------------------------------------
   output$table <- DT::renderDataTable({
     sa_schools_slim <- sa_schools %>%
       select(-latitude, -longitude)
