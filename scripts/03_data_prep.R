@@ -35,11 +35,11 @@ sa_schools_03 <- sa_schools_03 %>%
 # NEW VARIABLES FOR LEARNER AND TEACHER CATEGORY ---------------------------------------------------
 sa_schools_03 <- sa_schools_03 %>%
   mutate(Learners_Cat = ifelse(Learners <= 100, 300,
-                               ifelse(Learners > 100 & Learners <= 500, 400,
-                                      ifelse(Learners > 500 & Learners <= 1000, 500,
-                                             ifelse(Learners > 1000 & Learners <= 1500, 600,
-                                                    ifelse(Learners > 1500 & Learners <= 2000, 700,
-                                                           ifelse(Learners > 2000, 800, 300))))))) %>%
+                               ifelse(Learners > 100 & Learners <= 200, 400,
+                                      ifelse(Learners > 200 & Learners <= 500, 500,
+                                             ifelse(Learners > 500 & Learners <= 1000, 600,
+                                                    ifelse(Learners > 1000 & Learners <= 1500, 700,
+                                                           ifelse(Learners > 1500, 800, 300))))))) %>%
   mutate(Educators_Cat = ifelse(Educators <= 10, 300,
                                ifelse(Educators > 10 & Educators <= 20, 400,
                                       ifelse(Educators > 20 & Educators <= 50, 500,
