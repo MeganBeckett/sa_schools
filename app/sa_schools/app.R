@@ -9,18 +9,18 @@ library(dplyr)
 library(here)
 
 # READ IN DATA -------------------------------------------------------------------------------------
-sa_schools <- readRDS(here::here("data_prep/03_sa_schools.RDS"))
+sa_schools <- readRDS(here::here("data/03_sa_schools.RDS"))
 # Subset for now
-sa_schools <- sa_schools %>%
-  group_by(Province) %>%
-  top_n(100)
+# sa_schools <- sa_schools %>%
+#   group_by(Province) %>%
+#   top_n(100)
 
 # VARIABLES FOR INPUT PANEL --------------------------------------------------------------------------
 # Variables to set size by
 size_vars <- c(
-  "Learner number" = "Learners",
-  "Educator number" = "Educators",
-  "Standard size" = 1000
+  "Learner number" = "Learners_Cat",
+  "Educator number" = "Educators_Cat",
+  "Standard size"
 )
 
 # Variables to colour by
@@ -52,7 +52,7 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
                             )),
 
                           # Create base map
-                          leafletOutput("map", height = "1000"),
+                          leafletOutput("map", height = "800"),
 
                           # Input panel
                           absolutePanel(id = "controls", fixed = TRUE,
@@ -62,8 +62,8 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
 
                                         h3("School explorer"),
 
-                                        radioButtons("size", "Size", size_vars, selected = "Learners"),
-                                        selectInput("color", "Color", color_vars, selected = "Sector")
+                                        radioButtons("size", "Size by", size_vars, selected = "Learners_Cat"),
+                                        selectInput("color", "Color by", color_vars, selected = "Quintile")
                                         )
 
                           ),
@@ -90,26 +90,8 @@ server <- function(input, output) {
 
     m <- leaflet(data = sa_schools) %>%
       addTiles() %>%
-      # fitBounds(~min(longitude), ~min(latitude), ~max(longitude), ~max(latitude)) %>%
+      fitBounds(~min(longitude), ~min(latitude), ~max(longitude), ~max(latitude)) %>%
       setView(lng = 24, lat = -30, zoom = 6)
-      # addMarkers(lng = ~longitude,
-      #            lat = ~latitude,
-      #            popup = paste(sa_schools$Name, "<br>",
-      #                          "Phase:", sa_schools$Phase, "<br>",
-      #                          "Sector:", sa_schools$Sector, "<br>",
-      #                          "Quintile:", sa_schools$Quintile, "<br>",
-      #                          "# learners:", sa_schools$Learners, "<br>",
-      #                           "# educators:", sa_schools$Educators))
-      # addCircles(lng = ~longitude,
-      #            lat = ~latitude,
-      #            radius = ~Learners/2,
-      #            popup = paste(sa_schools$Name, "<br>",
-      #                          "Phase:", sa_schools$Phase, "<br>",
-      #                          "Sector:", sa_schools$Sector, "<br>",
-      #                          "Quintile:", sa_schools$Quintile, "<br>",
-      #                          "# learners:", sa_schools$Learners, "<br>",
-      #                          "# educators:", sa_schools$Educators), weight = 1)
-
     m
   })
 
@@ -122,19 +104,25 @@ server <- function(input, output) {
     color_data <- sa_schools[[color_by]]
     pal <- colorFactor("Set1", color_data)
 
-    if (size_by == "Educators") {
-      radius <- sa_schools[[size_by]] * 6
+    if (size_by == "Standard size") {
+      radius <- 200
     } else {
-      radius <- sa_schools[[size_by]] / 2
+      radius <- sa_schools[[size_by]]
     }
 
    leafletProxy("map", data = sa_schools) %>%
      clearShapes() %>%
+     # removeControl("legend") %>%
      addCircles(~longitude, ~latitude, radius=radius,
-                stroke=FALSE, fillOpacity=0.8, fillColor=pal(color_data)) %>%
-     addLegend("bottomleft", pal=pal, values=color_data, title=color_by,
-               layerId="color_legend")
-})
+                 stroke=FALSE, fillOpacity=0.7, fillColor=pal(color_data),
+                popup = paste(sa_schools$Name, "<br>",
+                             "Phase:", sa_schools$Phase, "<br>",
+                             "Sector:", sa_schools$Sector, "<br>",
+                             "Quintile:", sa_schools$Quintile, "<br>",
+                             "No. learners:", sa_schools$Learners, "<br>",
+                             "No. educators:", sa_schools$Educators), weight = 1) %>%
+     addLegend("bottomleft", pal=pal, values=color_data, title=color_by, layerId = "legend")
+  })
 
   # DATA EXPLORER ----------------------------------------------------------------------------------
   output$table <- DT::renderDataTable({
