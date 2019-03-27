@@ -19,7 +19,7 @@ library(sp)
 # coordinates(sa_gis) <- c("GIS_Longitude", "GIS_Latitude")
 
 # READ DATA ----------------------------------------------------------------------------------------
-sa_schools_01 <- readRDS("data_prep/01_sa_schools.RDS")
+sa_schools_01 <- readRDS("data/01_sa_schools.RDS")
 
 # MISSING GIS --------------------------------------------------------------------------------------
 # gis_na <- subset(sa_schools, is.na(GIS_Longitude) | is.na(GIS_Latitude))
@@ -73,4 +73,4 @@ sa_schools_02 <- sa_schools_02 %>%
   select(-GIS_Longitude, -GIS_Latitude)
 
 # SAVE ---------------------------------------------------------------------------------------------
-saveRDS(sa_schools_02, "data_prep/02_sa_schools.RDS")
+saveRDS(sa_schools_02, "data/02_sa_schools.RDS")

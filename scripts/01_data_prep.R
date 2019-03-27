@@ -100,4 +100,4 @@ sa_schools <- sa_schools %>%
   select(-dmy, -mdy, -ymd, -`Learner_Number 2017`, -`Educator_Number 2017`)
 
 # SAVE ---------------------------------------------------------------------------------------------
-saveRDS(sa_schools, "data_prep/01_sa_schools.RDS")
+saveRDS(sa_schools, "data/01_sa_schools.RDS")
