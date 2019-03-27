@@ -1,0 +1,62 @@
+---
+title: "SA Schools data exploration"
+output: html_notebook
+---
+
+# Overview
+
+Data exploration using the data prepared by combining the "schools master lists" from the Department of Basic Education website for schools in South Africa.
+
+```{r}
+# LIBRARIES ----------------------------------------------------------------------------------------
+library(dplyr)
+library(here)
+library(ggplot2)
+library(plotly)
+
+# READ DATA ----------------------------------------------------------------------------------------
+sa_schools <- readRDS(here::here("data/03_sa_schools.RDS"))
+
+```
+
+```{r}
+# VISUALISE ----------------------------------------------------------------------------------------
+
+p <- ggplot(sa_schools, aes(x = Learners)) +
+  geom_histogram() +
+  labs(title='Histogram of no. of learners',
+       x= 'No. of learners', y = 'School count')
+
+ggplotly(p)
+
+p <- ggplot(sa_schools, aes(x = Educators)) +
+  geom_histogram() +
+  labs(title='Histogram of no. of educators',
+       x= 'No. of educators', y = 'School count')
+
+ggplotly(p)
+```
+
+```{r}
+p <- ggplot(sa_schools, aes(x = Quintile)) +
+  geom_bar() +
+  labs(title='Distribution across "quintiles"',
+       x= 'Quintile', y = 'School count') +
+   scale_fill_brewer(palette="Set1", direction = -1)
+
+ggplotly(p)
+```
+
+
+```{r}
+sa_schools_summary <- sa_schools %>%
+  group_by(Province, Quintile) %>%
+  summarise(count = n()) %>%
+  filter(Quintile != "NA") %>%
+  mutate(Quintile = factor(Quintile, levels = c("5", "4", "3", "2", "1", "NA")))
+
+ggplot(sa_schools_summary) +
+  geom_bar(aes(x = Province, y = count, fill = Quintile), stat="identity") +
+  scale_fill_brewer(palette="Set1", direction = -1)
+```
+
