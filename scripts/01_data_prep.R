@@ -90,6 +90,7 @@ sa_schools <- sa_schools %>%
          Section21 = as.factor(Section21),
          NoFeeSchool = as.factor(NoFeeSchool),
          Urban_Rural = as.factor(Urban_Rural),
+         Quintile = as.factor(sa_schools$Quintile),
          Open_Boarding_school = as.factor(Open_Boarding_school),
          Phase = as.factor(Phase),
          OwnerLand = as.factor(OwnerLand))
