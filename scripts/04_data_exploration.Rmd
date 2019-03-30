@@ -1,7 +1,21 @@
 ---
 title: "SA Schools data exploration"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
+    fig_width: 8
+    fig_height: 4
+    theme: paper
+    highlight: tango
+    toc: true
+    toc_float: true
+    code_folding: hide
 ---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, fig.align = "center", out.width = '100%')
+
+```
 
 # Overview
 
@@ -19,6 +33,7 @@ sa_schools <- readRDS(here::here("data/03_sa_schools.RDS"))
 
 ```
 
+# Learner and teacher numbers
 ```{r}
 # VISUALISE ----------------------------------------------------------------------------------------
 
@@ -37,26 +52,120 @@ p <- ggplot(sa_schools, aes(x = Educators)) +
 ggplotly(p)
 ```
 
+# Country and provincial characteristics
 ```{r}
-p <- ggplot(sa_schools, aes(x = Quintile)) +
+sa_schools <- sa_schools %>%
+  mutate(Quintile = factor(sa_schools$Quintile))
+```
+
+### Quintiles
+```{r}
+p <- ggplot(sa_schools, aes(x = Quintile, fill = Quintile)) +
   geom_bar() +
-  labs(title='Distribution across "quintiles"',
+  labs(title='Distribution of schools in South Africa across "quintiles"',
        x= 'Quintile', y = 'School count') +
-   scale_fill_brewer(palette="Set1", direction = -1)
+   scale_fill_brewer(palette="Set1", direction = 1, na.value = "grey")
 
 ggplotly(p)
 ```
 
 
 ```{r}
-sa_schools_summary <- sa_schools %>%
+sa_schools_quint <- sa_schools %>%
   group_by(Province, Quintile) %>%
   summarise(count = n()) %>%
-  filter(Quintile != "NA") %>%
+  #filter(Quintile != "NA") %>%
   mutate(Quintile = factor(Quintile, levels = c("5", "4", "3", "2", "1", "NA")))
 
-ggplot(sa_schools_summary) +
+p <- ggplot(sa_schools_quint) +
   geom_bar(aes(x = Province, y = count, fill = Quintile), stat="identity") +
-  scale_fill_brewer(palette="Set1", direction = -1)
+  scale_fill_brewer(palette="Set1", direction = -1, na.value = "grey") +
+  theme(axis.text.x = element_text(angle = 40, hjust = 1)) +
+  labs(title='Distribution of schools in each province in South Africa across "quintiles"',
+       x= '', y = 'School count')
+
+ggplotly(p)
 ```
 
+## Rural vs Urban
+```{r}
+p <- ggplot(sa_schools, aes(x = Urban_Rural, fill = Urban_Rural)) +
+  geom_bar() +
+  labs(title='Rural vs urban schools in South Africa',
+       x= '', y = 'School count') +
+   scale_fill_brewer(palette="Set1", direction = 1, na.value = "grey") +
+  theme(axis.text.x = element_text(angle = 40, hjust = 1))
+
+ggplotly(p)
+```
+
+```{r}
+sa_schools_ur <- sa_schools %>%
+  group_by(Province, Urban_Rural) %>%
+  summarise(count = n()) 
+
+p <- ggplot(sa_schools_ur) +
+  geom_bar(aes(x = Province, y = count, fill = Urban_Rural), stat="identity") +
+  scale_fill_brewer(palette="Set1", direction = -1,  na.value = "grey") +
+  theme(axis.text.x = element_text(angle = 40, hjust = 1)) +
+  labs(title='Urban vs Rural schools in each province in South Africa"',
+       x= '', y = 'School count')
+
+ggplotly(p)
+```
+
+
+## Sector type
+```{r}
+p <- ggplot(sa_schools, aes(x = Sector, fill = Sector)) +
+  geom_bar() +
+  labs(title='Sector type of schools in South Africa',
+       x= '', y = 'School count') +
+   scale_fill_brewer(palette="Set1", direction = 1, na.value = "grey") +
+  theme(axis.text.x = element_text(angle = 40, hjust = 1))
+
+ggplotly(p)
+```
+
+```{r}
+sa_schools_sec <- sa_schools %>%
+  group_by(Province, Sector) %>%
+  summarise(count = n()) 
+
+p <- ggplot(sa_schools_sec) +
+  geom_bar(aes(x = Province, y = count, fill = Sector), stat="identity") +
+  scale_fill_brewer(palette="Set1", direction = -1,  na.value = "grey") +
+  theme(axis.text.x = element_text(angle = 40, hjust = 1)) +
+  labs(title='Sector type schools in each province in South Africa"',
+       x= '', y = 'School count')
+
+ggplotly(p)
+```
+
+
+## Phase
+```{r}
+p <- ggplot(sa_schools, aes(x = Phase, fill = Phase)) +
+  geom_bar() +
+  labs(title='Distribution of phase of schools in South Africa',
+       x= '', y = 'School count') +
+   scale_fill_brewer(palette="Set1", direction = 1, na.value = "grey")  +
+  theme(axis.text.x = element_text(angle = 40, hjust = 1))
+
+ggplotly(p)
+```
+
+```{r}
+sa_schools_phase <- sa_schools %>%
+  group_by(Province, Phase) %>%
+  summarise(count = n()) 
+
+p <- ggplot(sa_schools_phase) +
+  geom_bar(aes(x = Province, y = count, fill = Phase), stat="identity") +
+  scale_fill_brewer(palette="Set1", direction = -1,  na.value = "grey") +
+  theme(axis.text.x = element_text(angle = 40, hjust = 1)) +
+  labs(title='Split between phase of schools in each province in South Africa"',
+       x= '', y = 'School count')
+
+ggplotly(p)
+```
