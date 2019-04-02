@@ -93,7 +93,9 @@ sa_schools <- sa_schools %>%
          Quintile = as.factor(sa_schools$Quintile),
          Open_Boarding_school = as.factor(Open_Boarding_school),
          Phase = as.factor(Phase),
-         OwnerLand = as.factor(OwnerLand))
+         OwnerLand = as.factor(OwnerLand),
+         GIS_Longitude = as.numeric(GIS_Longitude),
+         GIS_Latitude = as.numeric(GIS_Latitude))
 
 
 # REMOVE UNWANTED COLUMNS --------------------------------------------------------------------------
