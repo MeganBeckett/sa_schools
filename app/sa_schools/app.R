@@ -33,7 +33,7 @@ library(RColorBrewer)
 # };
 # '
 # READ IN DATA -------------------------------------------------------------------------------------
-sa_schools <- readRDS(here::here("data/03_sa_schools.RDS"))
+sa_schools <- readRDS(here::here("data/sa_schools.RDS"))
 
 # VARIABLES FOR INPUT PANEL --------------------------------------------------------------------------
 # Variables to set size by
@@ -130,7 +130,7 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
                                      tags$li(strong("Sector:"),
                                              (tags$ul(
                                                tags$li("This refers to whether the school is public or independent."),
-                                               tags$li("The majority of schools in South Africa are public schools, meaning they are govered by the state."),
+                                               tags$li("The majority of schools in South Africa are public schools, meaning they are governed by the state."),
                                                tags$li("Independent schools, often referred to as private schools, are schools that are not owned by the state. They are usually owned and operated by a trust, church or community, or by a for-profit company."),
                                                tags$ul(
                                                  tags$li("There is an impression that high-fee independent schools make up most of the sector. But, this is not the case."),
@@ -158,7 +158,7 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
                                    h4("More information"),
                                    br(),
                                    p(em("This is a work in progress!")),
-                                   p("To see the code for this app, please view the repo on Github"),
+                                   p("To see the code for this app, have a look at the", tags$a(href="https://github.com/MeganBeckett/sa_schools", "Github repo.")),
                                    p("For more information and questions, please don't hesitate to contact me on megan.beckett13@gmail.com"),
                                    br()
                             )
