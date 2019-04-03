@@ -101,6 +101,7 @@ ggplotly(p)
 
 ```{r}
 sa_schools_ur <- sa_schools %>%
+  mutate(Urban_Rural = factor(Urban_Rural, levels = c("URBAN", "RURAL", "NA"))) %>%
   group_by(Province, Urban_Rural) %>%
   summarise(count = n()) 
 
