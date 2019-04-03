@@ -1,0 +1,12 @@
+name: SouthAfricanSchools
+title: SouthAfricanSchools
+username:
+account: mbeckett
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 829763
+bundleId: 1982297
+url: https://mbeckett.shinyapps.io/SouthAfricanSchools/
+when: 1554232877.74512
+asMultiple: FALSE
+asStatic: FALSE
