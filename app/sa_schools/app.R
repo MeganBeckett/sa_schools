@@ -14,28 +14,10 @@ library(shinyjs)
 library(ggplot2)
 library(RColorBrewer)
 
-# # JS FUNCTION FOR GEOLOCATE ------------------------------------------------------------------------
-# jsCode <- '
-# shinyjs.geoloc = function() {
-#     navigator.geolocation.getCurrentPosition(onSuccess, onError);
-#     function onError (err) {
-#         Shiny.onInputChange("geolocation", false);
-#     }
-#     function onSuccess (position) {
-#         setTimeout(function () {
-#             var coords = position.coords;
-#             console.log(coords.latitude + ", " + coords.longitude);
-#             Shiny.onInputChange("geolocation", true);
-#             Shiny.onInputChange("lat", coords.latitude);
-#             Shiny.onInputChange("long", coords.longitude);
-#         }, 5)
-#     }
-# };
-# '
 # READ IN DATA -------------------------------------------------------------------------------------
 sa_schools <- readRDS(here::here("data/sa_schools.RDS"))
 
-# VARIABLES FOR INPUT PANEL --------------------------------------------------------------------------
+# VARIABLES FOR INPUT PANEL ------------------------------------------------------------------------
 # Variables to set size by
 size_vars <- c(
   "Learner number" = "Learners_Cat",
@@ -44,7 +26,7 @@ size_vars <- c(
 )
 
 # Variables to colour by
-color_vars <- c(
+colour_vars <- c(
   "Sector" = "Sector",
   "Phase" = "Phase",
   "Quintile" = "Quintile",
@@ -69,14 +51,6 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
                                 opacity: 0.5};")
                             )),
 
-                          # # Tell shiny we will use some Javascript
-                          # useShinyjs(),
-                          # extendShinyjs(text = jsCode, functions = c("shinyjs.geoloc")),
-                          #
-                          # # Add button
-                          # br(),
-                          # actionButton("geoloc", "Localize me", class="btn btn-primary", onClick="shinyjs.geoloc()"),
-
                           # Create base map
                           leafletOutput("map", height = "800"),
 
@@ -90,10 +64,11 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
 
                                         radioButtons("size", "Size by", size_vars, selected = "Learners_Cat"),
                                         plotOutput("hist_plot", height = 150),
-                                        selectInput("color", "Color by", color_vars, selected = "Quintile"),
+                                        selectInput("colour", "colour by", colour_vars, selected = "Quintile"),
                                         plotOutput("bar_plot", height = 180)
                                         )
-                          #absolutePanel(top=80, left=70, textInput("target_zone", "" , "Search"))
+                          # TODO: Add search bar
+                          # absolutePanel(top=80, left=70, textInput("target_zone", "" , "Search"))
                           ),
 
                  tabPanel("School directory",
@@ -123,9 +98,9 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
                                                tags$li("The Quintile system is controversial as it poses several challenges to manage and there are major concerns over how schools are classified and the effects this can have."),
                                                tags$li("For some current news relating to this topic, have a look at the following resources"),
                                                tags$ul(
-                                                 tags$li(tags$a(href="https://www.groundup.org.za/article/fees-are-issue-school-too-not-just-university/", "Fees are an issue at school too")),
-                                                 tags$li(tags$a(href="https://www.corruptionwatch.org.za/schools-quintile-system-to-change/", "Schools quintile system to change?")),
-                                                 tags$li(tags$a(href="https://www.iol.co.za/sunday-tribune/news/calls-intensify-for-education-dept-to-scrap-quintile-rank-system-18250382", "Calls intensify to scrap quintile system")))))),
+                                                 tags$li(tags$a(href = "https://www.groundup.org.za/article/fees-are-issue-school-too-not-just-university/", "Fees are an issue at school too")),
+                                                 tags$li(tags$a(href = "https://www.corruptionwatch.org.za/schools-quintile-system-to-change/", "Schools quintile system to change?")),
+                                                 tags$li(tags$a(href = "https://www.iol.co.za/sunday-tribune/news/calls-intensify-for-education-dept-to-scrap-quintile-rank-system-18250382", "Calls intensify to scrap quintile system")))))),
 
                                      tags$li(strong("Sector:"),
                                              (tags$ul(
@@ -150,6 +125,14 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
 
                                    ),
                                    br(),
+                                   h4("Interesting observations?"),
+                                   br(),
+                                   p(strong(em("What insights do you see when exploring the map and data?"))),
+                                   br(),
+                                   p("One such insight which jumps out at us when viewing this school data from a bird's eye view is that the geographical location of the schools of today still mirror the former homelands, a legacy of Apartheid."),
+                                   tags$blockquote("The Bantustans, or homelands, established by the Apartheid Government, were areas to which the majority of the Black population was moved to prevent them from living in the urban areas of South Africa. The Bantustans were a major administrative mechanism for the removal of Blacks from the South African political system under the many laws and policies created by Apartheid. The idea was to separate Blacks from the Whites, and give Blacks the responsibility of running their own independent governments, thus denying them protection and any remaining rights a Black could have in South Africa. In other words, Bantustans were established for the permanent removal of the Black population in White South Africa."),
+                                   tags$img(src = "map.gif", width = 800, style = "display: block; margin-left: auto; margin-right: auto;"),
+                                   br(),
                                    h4("The data"),
                                    p("The data used in this app was obtained from the Department of Basic Education website in the form of Excel files. There is one for each province and they define the 'master list' of schools in South Africa and the most current classifications, rankings and information about schools that the public has access to.",
                                      em("These data were last updated in 2017 and hence represent the state of schools as of 2017.")),
@@ -158,14 +141,12 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
                                    h4("More information"),
                                    br(),
                                    p(em("This is a work in progress!")),
-                                   p("To see the code for this app, have a look at the", tags$a(href="https://github.com/MeganBeckett/sa_schools", "Github repo.")),
+                                   p("To see the code for this app, have a look at the", tags$a(href = "https://github.com/MeganBeckett/sa_schools", "Github repo.")),
                                    p("For more information and questions, please don't hesitate to contact me on megan.beckett13@gmail.com"),
                                    br()
                             )
                           )
                  )
-
-
 )
 
 # SERVER -------------------------------------------------------------------------------------------
@@ -178,7 +159,7 @@ server <- function(input, output) {
 
   # INTERACTIVE MAP --------------------------------------------------------------------------------
   output$map <- renderLeaflet({
-    # # Get latitude and longitude
+    # # Get latitude and longitude for search bar - not working yet
     # if(input$target_zone=="Search" | input$target_zone==""){
     #   ZOOM=6
     #   LAT=-30
@@ -191,24 +172,21 @@ server <- function(input, output) {
     # }
 
     m <- leaflet() %>%
-      # fitBounds(~min(longitude), ~min(latitude), ~max(longitude), ~max(latitude)) %>%
       setView(lng = 24, lat = -30, zoom = 6) %>%
       addTiles() %>%
       addEasyButton(easyButton(
-        icon="fa-globe", title="Zoom out",
-        onClick=JS("function(btn, map){ map.setZoom(6); }")))
-      # addEasyButton(easyButton(
-      #   icon="fa-crosshairs", title="Locate Me",
-      #   onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+        icon = "fa-globe", title = "Zoom out",
+        onClick = JS("function(btn, map){ map.setZoom(6); }"))) %>%
+      addEasyButton(easyButton(
+        icon = "fa-street-view", title = "Locate me",
+        onClick = JS("function(btn, map){ map.locate({setView: true });  }")))
     m
   })
 
-  # A reactive expression that returns the schools that are in view right now
+  # A reactive expression that returns the schools that are in view right now for plotting
   schools_in_view <- reactive({
-    # if (is.null(input$map_bounds))
-    #   return(sa_schools[FALSE,])
 
-    bounds <- input$map_bounds
+        bounds <- input$map_bounds
     latRng <- range(bounds$north, bounds$south)
     lngRng <- range(bounds$east, bounds$west)
 
@@ -241,7 +219,7 @@ server <- function(input, output) {
     if (nrow(schools_in_view()) == 0)
       return(NULL)
 
-    x_var <- input$color
+    x_var <- input$colour
 
     # Set colours according to factors in x_var so that remain constant even if schools_in_view don't
     # cover all levels
@@ -259,39 +237,23 @@ server <- function(input, output) {
   })
 
 
-  # # Find geolocalisation coordinates when user clicks
-  # observeEvent(input$geoloc, {
-  #   js$geoloc()
-  # })
-  #
-  # # zoom on the corresponding area
-  # observe({
-  #   if(!is.null(input$lat)){
-  #     map <- leafletProxy("map")
-  #     dist <- 0.2
-  #     lat <- input$lat
-  #     lng <- input$long
-  #     map %>% fitBounds(lng - dist, lat - dist, lng + dist, lat + dist)
-  #   }
-  # })
-
-  # This observer is responsible for maintaining the circles and legend,
-  # according to the variables the user has chosen to map to color and size.
+  # This observer is responsible for updating the circle size and colouraccording to the variables
+  # the user has chosen in side panel.
+  # TODO: Create two observers - one for colour_by and one for size_by
   observe({
     sa_schools <- data()
-    color_by <- input$color
+    colour_by <- input$colour
     size_by <- input$size
 
-    color_data <- sa_schools[[color_by]]
+    colour_data <- sa_schools[[colour_by]]
 
     # Note: For some reason, when only two factors, "Set1" uses red and green instead of red and blue.
     # So, for now, hard coded the colours for 2 level factor variables to be red and blue so match colours in barplot
-    if (color_by == "Quintile" | color_by == "Phase") {
-      pal <- colorFactor("Set1", domain = color_data, ordered = TRUE, na.color = "grey")
+    if (colour_by == "Quintile" | colour_by == "Phase") {
+      pal <- colorFactor("Set1", domain = colour_data, ordered = TRUE, na.color = "grey")
     } else {
-      pal <- colorFactor(c("#E41A1B", "#377EB8"), domain = color_data, ordered = TRUE, na.color = "grey")
+      pal <- colorFactor(c("#E41A1B", "#377EB8"), domain = colour_data, ordered = TRUE, na.color = "grey")
     }
-
 
     if (size_by == "Standard size") {
       radius <- 200
@@ -301,16 +263,15 @@ server <- function(input, output) {
 
    leafletProxy("map", data = sa_schools) %>%
      clearShapes() %>%
-     # removeControl("legend") %>%
-     addCircles(~longitude, ~latitude, radius=radius,
-                 stroke=FALSE, fillOpacity=0.7, fillColor=pal(color_data),
+     addCircles(~longitude, ~latitude, radius = radius,
+                 stroke = FALSE, fillOpacity = 0.7, fillColor = pal(colour_data),
                 popup = paste(sa_schools$Name, "<br>",
                              "Phase:", sa_schools$Phase, "<br>",
                              "Sector:", sa_schools$Sector, "<br>",
                              "Quintile:", sa_schools$Quintile, "<br>",
                              "No. learners:", sa_schools$Learners, "<br>",
                              "No. educators:", sa_schools$Educators), weight = 1) %>%
-     addLegend("bottomleft", pal=pal, values=color_data, title=color_by, layerId = "legend")
+     addLegend("bottomleft", pal = pal, values = colour_data, title = colour_by, layerId = "legend")
   })
 
   # DATA EXPLORER ----------------------------------------------------------------------------------
@@ -323,5 +284,6 @@ server <- function(input, output) {
 }
 
 # Run the application
+shinyAppDir(".")
 shinyApp(ui = ui, server = server)
 
