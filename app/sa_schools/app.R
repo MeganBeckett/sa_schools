@@ -186,7 +186,7 @@ server <- function(input, output) {
   # A reactive expression that returns the schools that are in view right now for plotting
   schools_in_view <- reactive({
 
-        bounds <- input$map_bounds
+    bounds <- input$map_bounds
     latRng <- range(bounds$north, bounds$south)
     lngRng <- range(bounds$east, bounds$west)
 
@@ -239,7 +239,7 @@ server <- function(input, output) {
 
   # This observer is responsible for updating the circle size and colouraccording to the variables
   # the user has chosen in side panel.
-  # TODO: Create two observers - one for colour_by and one for size_by
+  # TODO: Create two observers? One for colour_by and one for size_by
   observe({
     sa_schools <- data()
     colour_by <- input$colour
@@ -277,7 +277,8 @@ server <- function(input, output) {
   # DATA EXPLORER ----------------------------------------------------------------------------------
   output$table <- DT::renderDataTable({
     sa_schools_slim <- sa_schools %>%
-      select(-latitude, -longitude)
+      select(-Type, -Region, -NoFeeSchool, -BoardingSchool, -Learners_Cat, -Educators_Cat, -Section21, -latitude, -longitude) %>%
+      select(NatEmis, Name, Province, Quintile, Sector, Phase, Urban_Rural, Learners, Educators, District, Circuit, StreetAddress, Telephone)
 
     DT::datatable(sa_schools_slim)
   })
