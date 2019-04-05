@@ -13,6 +13,7 @@ library(htmlwidgets)
 library(shinyjs)
 library(ggplot2)
 library(RColorBrewer)
+library(readr)
 
 # READ IN DATA -------------------------------------------------------------------------------------
 sa_schools <- readRDS(here::here("data/sa_schools.RDS"))
@@ -73,7 +74,10 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
 
                  tabPanel("School directory",
 
-                          DT::dataTableOutput("table")
+                          DT::dataTableOutput("table"),
+                          br(),
+                          downloadButton("download_data", "Download data", class = "button"),
+                          tags$head(tags$style(".button{background-color:#AAD3DF;} .button{color: white;}"))
                           ),
 
                  tabPanel("About",
@@ -282,6 +286,21 @@ server <- function(input, output) {
 
     DT::datatable(sa_schools_slim)
   })
+
+  # ## Save data
+  # observeEvent(
+  #   input$save_button, {
+  #     file_path <- "south_africa_schools_list.csv"
+  #     write_csv(sa_schools, file_path)
+  #   })
+
+  output$download_data <- downloadHandler(
+    filename = "south_africa_schools_list.csv",
+    content = function(file) {
+      write.csv(data(), file, row.names = TRUE)
+    },
+    contentType = "csv"
+  )
 }
 
 # Run the application
