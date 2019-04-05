@@ -14,6 +14,7 @@ library(shinyjs)
 library(ggplot2)
 library(RColorBrewer)
 library(readr)
+library(snakecase)
 
 # READ IN DATA -------------------------------------------------------------------------------------
 sa_schools <- readRDS(here::here("data/sa_schools.RDS"))
@@ -33,6 +34,9 @@ colour_vars <- c(
   "Quintile" = "Quintile",
   "Rural or urban" = "Urban_Rural"
 )
+
+# Province choices
+provinces = c("ALL PROVINCES", unique(sa_schools$Province))
 
 # COLOUR SCALE -------------------------------------------------------------------------------------
 # Set colour scale for ggplots
@@ -73,11 +77,15 @@ ui <- navbarPage(title = "South African Schools", id = "nav",
                           ),
 
                  tabPanel("School directory",
-
+                          selectInput(inputId = "province", label = "Select province",
+                                      choices = provinces,
+                                      selected = "ALL PROVINCES"),
+                          br(),
                           DT::dataTableOutput("table"),
                           br(),
                           downloadButton("download_data", "Download data", class = "button"),
-                          tags$head(tags$style(".button{background-color:#AAD3DF;} .button{color: white;}"))
+                          tags$head(tags$style(".button{background-color:#5FB76A;} .button{color: white;}")),
+                          br()
                           ),
 
                  tabPanel("About",
@@ -159,6 +167,16 @@ server <- function(input, output) {
 
   data <- reactive({
     x <- sa_schools
+  })
+
+  # Filter for provinces
+  sa_schools_provinces <- reactive({
+    if (input$province == "ALL PROVINCES") {
+      data()
+    } else {
+      data() %>%
+        filter(Province == input$province)
+     }
   })
 
   # INTERACTIVE MAP --------------------------------------------------------------------------------
@@ -280,24 +298,20 @@ server <- function(input, output) {
 
   # DATA EXPLORER ----------------------------------------------------------------------------------
   output$table <- DT::renderDataTable({
-    sa_schools_slim <- sa_schools %>%
+    sa_schools_slim <- sa_schools_provinces() %>%
       select(-Type, -Region, -NoFeeSchool, -BoardingSchool, -Learners_Cat, -Educators_Cat, -Section21, -latitude, -longitude) %>%
       select(NatEmis, Name, Province, Quintile, Sector, Phase, Urban_Rural, Learners, Educators, District, Circuit, StreetAddress, Telephone)
 
     DT::datatable(sa_schools_slim)
   })
 
-  # ## Save data
-  # observeEvent(
-  #   input$save_button, {
-  #     file_path <- "south_africa_schools_list.csv"
-  #     write_csv(sa_schools, file_path)
-  #   })
-
   output$download_data <- downloadHandler(
-    filename = "south_africa_schools_list.csv",
+    filename = function() {
+      prov <- to_any_case(input$province, case = "parsed")
+      paste0("south_africa_schools_list_", prov, ".csv")
+    },
     content = function(file) {
-      write.csv(data(), file, row.names = TRUE)
+      write.csv(sa_schools_provinces(), file, row.names = TRUE)
     },
     contentType = "csv"
   )
